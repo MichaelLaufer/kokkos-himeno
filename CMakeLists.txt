@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 project(kokkos-cuda)
 
 add_executable(kokkos-cuda main.cpp)
