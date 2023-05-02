@@ -72,9 +72,9 @@
 #endif
 
 void initmt(Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
-            Kokkos::View<float[4][MIMAX][MJMAX][MKMAX]> a,
-            Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> b,
-            Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> c,
+            Kokkos::View<float[MIMAX][MJMAX][MKMAX][4]> a,
+            Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> b,
+            Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> c,
             Kokkos::View<float[MIMAX][MJMAX][MKMAX]> bnd,
             Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk1,
             Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk2)
@@ -84,16 +84,16 @@ void initmt(Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
                                                {MIMAX, MJMAX, MKMAX}),
         KOKKOS_LAMBDA(int i, int j, int k) {
-            a(0, i, j, k) = 0.0f;
-            a(1, i, j, k) = 0.0f;
-            a(2, i, j, k) = 0.0f;
-            a(3, i, j, k) = 0.0f;
-            b(0, i, j, k) = 0.0f;
-            b(1, i, j, k) = 0.0f;
-            b(2, i, j, k) = 0.0f;
-            c(0, i, j, k) = 0.0f;
-            c(1, i, j, k) = 0.0f;
-            c(2, i, j, k) = 0.0f;
+            a(i, j, k, 0) = 0.0f;
+            a(i, j, k, 1) = 0.0f;
+            a(i, j, k, 2) = 0.0f;
+            a(i, j, k, 3) = 0.0f;
+            b(i, j, k, 0) = 0.0f;
+            b(i, j, k, 1) = 0.0f;
+            b(i, j, k, 2) = 0.0f;
+            c(i, j, k, 0) = 0.0f;
+            c(i, j, k, 1) = 0.0f;
+            c(i, j, k, 2) = 0.0f;
             p(i, j, k) = 0.0f;
             wrk1(i, j, k) = 0.0f;
             bnd(i, j, k) = 0.0f;
@@ -104,16 +104,16 @@ void initmt(Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
             {0, 0, 0}, {MIMAX - 1, MJMAX - 1, MKMAX - 1}),
         KOKKOS_LAMBDA(int i, int j, int k) {
-            a(0, i, j, k) = 1.0f;
-            a(1, i, j, k) = 1.0f;
-            a(2, i, j, k) = 1.0f;
-            a(3, i, j, k) = 1.0f / 6.0f;
-            b(0, i, j, k) = 0.0f;
-            b(1, i, j, k) = 0.0f;
-            b(2, i, j, k) = 0.0f;
-            c(0, i, j, k) = 1.0f;
-            c(1, i, j, k) = 1.0f;
-            c(2, i, j, k) = 1.0f;
+            a(i, j, k, 0) = 1.0f;
+            a(i, j, k, 1) = 1.0f;
+            a(i, j, k, 2) = 1.0f;
+            a(i, j, k, 3) = 1.0f / 6.0f;
+            b(i, j, k, 0) = 0.0f;
+            b(i, j, k, 1) = 0.0f;
+            b(i, j, k, 2) = 0.0f;
+            c(i, j, k, 0) = 1.0f;
+            c(i, j, k, 1) = 1.0f;
+            c(i, j, k, 2) = 1.0f;
             p(i, j, k) = (float)(i * i) / (float)((MIMAX - 2) * (MIMAX - 2));
             wrk1(i, j, k) = 0.0f;
             bnd(i, j, k) = 1.0f;
@@ -121,9 +121,9 @@ void initmt(Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
 }
 
 float jacobi(int nn, Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
-             Kokkos::View<float[4][MIMAX][MJMAX][MKMAX]> a,
-             Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> b,
-             Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> c,
+             Kokkos::View<float[MIMAX][MJMAX][MKMAX][4]> a,
+             Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> b,
+             Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> c,
              Kokkos::View<float[MIMAX][MJMAX][MKMAX]> bnd,
              Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk1,
              Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk2)
@@ -140,20 +140,20 @@ float jacobi(int nn, Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
                 {1, 1, 1}, {MIMAX - 2, MJMAX - 2, MKMAX - 2}),
             KOKKOS_LAMBDA(int i, int j, int k, float &gosa) {
                 float s0 =
-                    a(0, i, j, k) * p(i + 1, j, k) +
-                    a(1, i, j, k) * p(i, j + 1, k) +
-                    a(2, i, j, k) * p(i, j, k + 1) +
-                    b(0, i, j, k) * (p(i + 1, j + 1, k) - p(i + 1, j - 1, k) -
+                    a(i, j, k, 0) * p(i + 1, j, k) +
+                    a(i, j, k, 1) * p(i, j + 1, k) +
+                    a(i, j, k, 2) * p(i, j, k + 1) +
+                    b(i, j, k, 0) * (p(i + 1, j + 1, k) - p(i + 1, j - 1, k) -
                                      p(i - 1, j + 1, k) + p(i - 1, j - 1, k)) +
-                    b(1, i, j, k) * (p(i, j + 1, k + 1) - p(i, j - 1, k + 1) -
+                    b(i, j, k, 1) * (p(i, j + 1, k + 1) - p(i, j - 1, k + 1) -
                                      p(i, j + 1, k - 1) + p(i, j - 1, k - 1)) +
-                    b(2, i, j, k) * (p(i + 1, j, k + 1) - p(i - 1, j, k + 1) -
+                    b(i, j, k, 2) * (p(i + 1, j, k + 1) - p(i - 1, j, k + 1) -
                                      p(i + 1, j, k - 1) + p(i - 1, j, k - 1)) +
-                    c(0, i, j, k) * p(i - 1, j, k) +
-                    c(1, i, j, k) * p(i, j - 1, k) +
-                    c(2, i, j, k) * p(i, j, k - 1) + wrk1(i, j, k);
+                    c(i, j, k, 0) * p(i - 1, j, k) +
+                    c(i, j, k, 1) * p(i, j - 1, k) +
+                    c(i, j, k, 2) * p(i, j, k - 1) + wrk1(i, j, k);
 
-                float ss = (s0 * a(3, i, j, k) - p(i, j, k)) * bnd(i, j, k);
+                float ss = (s0 * a(i, j, k, 3) - p(i, j, k)) * bnd(i, j, k);
 
                 gosa += ss * ss;
 
@@ -214,9 +214,9 @@ int main(int argc, char *argv[])
     Kokkos::ScopeGuard guard(argc, argv);
 
     Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p("p");
-    Kokkos::View<float[4][MIMAX][MJMAX][MKMAX]> a("a");
-    Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> b("b");
-    Kokkos::View<float[3][MIMAX][MJMAX][MKMAX]> c("c");
+    Kokkos::View<float[MIMAX][MJMAX][MKMAX][4]> a("a");
+    Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> b("b");
+    Kokkos::View<float[MIMAX][MJMAX][MKMAX][3]> c("c");
     Kokkos::View<float[MIMAX][MJMAX][MKMAX]> bnd("bnd");
     Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk1("wrk1");
     Kokkos::View<float[MIMAX][MJMAX][MKMAX]> wrk2("wrk2");
