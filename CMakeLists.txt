@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
-project(kokkos-cuda)
+project(kokkos-himeno)
 
-add_executable(kokkos-cuda main.cpp)
+add_executable(kokkos-himeno main.cpp)
 find_package(Kokkos REQUIRED)
-target_link_libraries(kokkos-cuda Kokkos::kokkos)
-target_compile_options(kokkos-cuda PRIVATE -DLARGE)
+target_link_libraries(kokkos-himeno Kokkos::kokkos)
+target_compile_options(kokkos-himeno PRIVATE -DELARGE)

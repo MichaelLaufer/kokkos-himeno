@@ -137,7 +137,7 @@ float jacobi(int nn, Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
         Kokkos::parallel_reduce(
             "jacobi1",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                {1, 1, 1}, {MIMAX - 2, MJMAX - 2, MKMAX - 2}),
+                {1, 1, 1}, {MIMAX - 2, MJMAX - 2, MKMAX - 2}, {256, 4, 1}),
             KOKKOS_LAMBDA(int i, int j, int k, float &gosa) {
                 float s0 =
                     a(i, j, k, 0) * p(i + 1, j, k) +
@@ -164,7 +164,7 @@ float jacobi(int nn, Kokkos::View<float[MIMAX][MJMAX][MKMAX]> p,
         Kokkos::parallel_for(
             "jacobi2",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                {1, 1, 1}, {MIMAX - 2, MJMAX - 2, MKMAX - 2}),
+                {1, 1, 1}, {MIMAX - 2, MJMAX - 2, MKMAX - 2}, {256, 4, 1}),
             KOKKOS_LAMBDA(int i, int j, int k) { p(i, j, k) = wrk2(i, j, k); });
 
     } /* end n loop */
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
     float gosa;
     double cpu, cpu0, cpu1, flop, target;
 
-    target = 60.0f;
+    target = 60.0;
 
     Kokkos::ScopeGuard guard(argc, argv);
 
